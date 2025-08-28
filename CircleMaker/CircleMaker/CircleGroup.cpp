@@ -17,8 +17,10 @@ CircleGroup::~CircleGroup() {
 }
 
 int CircleGroup::Add(int x, int y, int radius) {
-	this->circles[this->count++] = new Circle(x, y, radius);
-	return this->count;
+	this->circles[this->count] = new Circle(x, y, radius);
+	this->selected = this->count;
+	this->count++;
+	return this->selected;
 }
 
 Circle* CircleGroup::GetAt(int index) {

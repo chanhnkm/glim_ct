@@ -36,6 +36,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnClose();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+	afx_msg void OnOK();
 	afx_msg void OnPaint();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg HCURSOR OnQueryDragIcon();
@@ -52,9 +53,9 @@ private:
 	void InitDrawingArea();
 	void ClearDrawingArea();
 	void DrawCircle(unsigned char* fm, int x, int y, int radius, int color);
-	void DrawBlankCircle(unsigned char* fm, int x, int y, int radius, int borderColor);
+	void DrawBlankCircle(unsigned char* fm, int x, int y, int radius, int border, int borderColor);
 	BOOL IsInCircle(int x, int y, int nCenterX, int nCenterY, int radius);
-	BOOL IsInCircleBorder(int x, int y, int nCenterX, int nCenterY, int radius);
+	BOOL IsInCircleBorder(int x, int y, int nCenterX, int nCenterY, int radius, int border);
 	void GetRandomPoint(int* x, int* y);
 	
 	BOOL StartRandomMoveThread();

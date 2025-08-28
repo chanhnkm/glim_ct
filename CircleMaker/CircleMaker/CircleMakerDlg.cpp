@@ -13,8 +13,6 @@
 
 #include <random>
 
-#define BORDER 3
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
@@ -66,7 +64,7 @@ CCircleMakerDlg::CCircleMakerDlg(CWnd* pParent /*=nullptr*/)
 	circleGroup = NULL;
 	circumCircle = NULL;
 	isMoving = false;
-	m_stopWorker = false;
+	m_stopWorker = true;
 }
 
 void CCircleMakerDlg::DoDataExchange(CDataExchange* pDX)
@@ -123,6 +121,7 @@ BOOL CCircleMakerDlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 	SetDlgItemInt(IDC_EDIT_RADIUS, 10);
+	SetDlgItemInt(IDC_EDIT_BORDER, 3);
 	InitDrawingArea();
 	circleGroup = new CircleGroup;
 
@@ -154,6 +153,11 @@ void CCircleMakerDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	{
 		CDialogEx::OnSysCommand(nID, lParam);
 	}
+}
+
+void CCircleMakerDlg::OnOK()
+{
+	// Do nothing
 }
 
 // 대화 상자에 최소화 단추를 추가할 경우 아이콘을 그리려면
@@ -188,7 +192,8 @@ void CCircleMakerDlg::OnPaint()
 
 		int count = circleGroup->GetCount();
 		if (count >= 3 && circumCircle != NULL) {
-			DrawBlankCircle(fm, circumCircle->GetX(), circumCircle->GetY(), circumCircle->GetRadius(), 0);
+			int border = GetDlgItemInt(IDC_EDIT_BORDER);
+			DrawBlankCircle(fm, circumCircle->GetX(), circumCircle->GetY(), circumCircle->GetRadius(), border, 0);
 		}
 
 		Circle* circle;
@@ -212,6 +217,11 @@ void CCircleMakerDlg::OnPaint()
 
 BOOL CCircleMakerDlg::OnEraseBkgnd(CDC* pDC)
 {
+	CRect rect;
+	GetClientRect(&rect);
+	rect.bottom = m_drawingAreaRect.top;
+	CBrush background(GetSysColor(COLOR_3DFACE));
+	pDC->FillRect(rect, &background);
 	return TRUE;
 }
 
@@ -233,9 +243,9 @@ void CCircleMakerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		if (count < 3) {
 			int nRadius = GetDlgItemInt(IDC_EDIT_RADIUS);
 
-			count = circleGroup->Add(x, y, nRadius);
+			int selected = circleGroup->Add(x, y, nRadius);
 			printf("x:%d | y:%d | radius:%d\n",
-				circleGroup->GetAt(count - 1)->GetX(), circleGroup->GetAt(count - 1)->GetY(), circleGroup->GetAt(count - 1)->GetRadius());
+				circleGroup->GetAt(selected)->GetX(), circleGroup->GetAt(selected)->GetY(), circleGroup->GetAt(selected)->GetRadius());
 
 			// 큰 원을 생성한다.
 			circumCircle = circleGroup->MakeCircumCircle();
@@ -261,6 +271,9 @@ void CCircleMakerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				circleGroup->Select(i);
 			}
 		}
+		SetDlgItemInt(IDC_STATIC_XVALUE, circleGroup->GetAt(circleGroup->GetSelected())->GetX());
+		SetDlgItemInt(IDC_STATIC_YVALUE, circleGroup->GetAt(circleGroup->GetSelected())->GetY());
+
 		Invalidate();
 	}
 }
@@ -273,6 +286,9 @@ void CCircleMakerDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 		Circle* circle = circleGroup->GetAt(circleGroup->GetSelected());
 		circle->Move(x, y);
+
+		SetDlgItemInt(IDC_STATIC_XVALUE, circle->GetX());
+		SetDlgItemInt(IDC_STATIC_YVALUE, circle->GetY());
 
 		if (circumCircle != NULL) {
 			delete circumCircle;
@@ -438,20 +454,20 @@ void CCircleMakerDlg::DrawCircle(unsigned char* fm, int x, int y, int radius, in
 	}
 }
 
-void CCircleMakerDlg::DrawBlankCircle(unsigned char* fm, int x, int y, int radius, int borderColor)
+void CCircleMakerDlg::DrawBlankCircle(unsigned char* fm, int x, int y, int radius, int border, int borderColor)
 {
 	int nPitch = m_drawingArea.GetPitch();
 	int nWidth = m_drawingArea.GetWidth();
 	int nHeight = m_drawingArea.GetHeight();
 
-	int nStartX = (x - radius - BORDER >= 0) ? (x - radius - BORDER) : (0);
-	int nStartY = (y - radius - BORDER >= 0) ? (y - radius - BORDER) : (0);
-	int nEndX = (x + radius + BORDER < nWidth) ? (x + radius + BORDER) : (nWidth - 1);
-	int nEndY = (y + radius + BORDER < nHeight) ? (y + radius + BORDER) : (nHeight - 1);
+	int nStartX = (x - radius - border >= 0) ? (x - radius - border) : (0);
+	int nStartY = (y - radius - border >= 0) ? (y - radius - border) : (0);
+	int nEndX = (x + radius + border < nWidth) ? (x + radius + border) : (nWidth - 1);
+	int nEndY = (y + radius + border < nHeight) ? (y + radius + border) : (nHeight - 1);
 
 	for (int j = nStartY; j <= nEndY; j++) {
 		for (int i = nStartX; i <= nEndX; i++) {
-			if (IsInCircleBorder(i, j, x, y, radius)) {
+			if (IsInCircleBorder(i, j, x, y, radius, border)) {
 				fm[j * nPitch + i] = borderColor;
 			}
 		}
@@ -473,7 +489,7 @@ BOOL CCircleMakerDlg::IsInCircle(int x, int y, int nCenterX, int nCenterY, int r
 	return bRet;
 }
 
-BOOL CCircleMakerDlg::IsInCircleBorder(int x, int y, int nCenterX, int nCenterY, int radius)
+BOOL CCircleMakerDlg::IsInCircleBorder(int x, int y, int nCenterX, int nCenterY, int radius, int border)
 {
 	BOOL bRet = FALSE;
 
@@ -481,7 +497,7 @@ BOOL CCircleMakerDlg::IsInCircleBorder(int x, int y, int nCenterX, int nCenterY,
 	double dY = y - nCenterY;
 	double dDist = dX * dX + dY * dY;
 
-	if (dDist >= (radius - BORDER) * (radius - BORDER) && dDist <= (radius + BORDER) * (radius + BORDER)) {
+	if (dDist >= (radius - border) * (radius - border) && dDist <= (radius + border) * (radius + border)) {
 		bRet = TRUE;
 	}
 
