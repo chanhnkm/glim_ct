@@ -67,6 +67,7 @@ private:
 	Circle* circumCircle;
 	bool isMoving;
 
+public:
 	std::thread m_worker;
 	bool m_stopWorker;
 };

@@ -131,6 +131,8 @@ BOOL CCircleMakerDlg::OnInitDialog()
 
 void CCircleMakerDlg::OnClose()
 {
+	StopRandomMoveThread();
+
 	if (circumCircle != NULL) {
 		delete circumCircle;
 	}
@@ -297,6 +299,9 @@ void CCircleMakerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CCircleMakerDlg::OnBnClickedBtnInit()
 {
+	StopRandomMoveThread();
+	printf("랜덤 이동 끝\n");
+	
 	if (circumCircle != NULL) {
 		delete circumCircle;
 		circumCircle = NULL;
@@ -499,7 +504,7 @@ void threadProcess(CWnd* pParent) {
 	CCircleMakerDlg* pWnd = (CCircleMakerDlg*)pParent;
 	// 초당 2회, 10번 반복
 	int i = 1;
-	while (i <= 10) {
+	while (i <= 10 && pWnd->m_stopWorker == false) {
 		::PostMessage(pWnd->m_hWnd, WM_MOVE_RANDOM, 0, 0);
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		i++;
