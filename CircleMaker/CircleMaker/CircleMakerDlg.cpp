@@ -271,8 +271,11 @@ void CCircleMakerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 				circleGroup->Select(i);
 			}
 		}
-		SetDlgItemInt(IDC_STATIC_XVALUE, circleGroup->GetAt(circleGroup->GetSelected())->GetX());
-		SetDlgItemInt(IDC_STATIC_YVALUE, circleGroup->GetAt(circleGroup->GetSelected())->GetY());
+
+		if (circleGroup->GetSelected() != -1) {
+			SetDlgItemInt(IDC_STATIC_XVALUE, circleGroup->GetAt(circleGroup->GetSelected())->GetX());
+			SetDlgItemInt(IDC_STATIC_YVALUE, circleGroup->GetAt(circleGroup->GetSelected())->GetY());
+		}
 
 		Invalidate();
 	}
