@@ -1,0 +1,39 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+int solution(vector<vector<int>> dots) { // 1. 꼭짓점들을 입력받는다.
+    int maxX;
+    int minX;
+    int maxY;
+    int minY;
+    int i = 0;
+    // 2. 꼭짓점들 개수만큼 반복한다.
+    while (i < dots.size()) {
+        // 2.1. 최대 x를 구한다.
+        if (i == 0 || maxX < dots[i][0]) {
+            maxX = dots[i][0];
+        }
+        // 2.2. 최소 x를 구한다.
+        if (i == 0 || minX > dots[i][0]) {
+            minX = dots[i][0];
+        }
+        // 2.3. 최대 y를 구한다.
+        if (i == 0 || maxY < dots[i][1]) {
+            maxY = dots[i][1];
+        }
+        // 2.4. 최소 y를 구한다.
+        if (i == 0 || minY > dots[i][1]) {
+            minY = dots[i][1];
+        }
+        i++;
+    }
+    // 3. 너비를 구한다.
+    int width = maxX - minX;
+    // 4. 높이를 구한다.
+    int height = maxY - minY;
+    // 5. 넓이를 구한다.
+    int area = width * height;
+    return area; // 6. 넓이를 출력한다.
+} // 7. 끝낸다.

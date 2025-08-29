@@ -1,0 +1,30 @@
+#include <string>
+#include <vector>
+
+using namespace std;
+
+vector<int> solution(vector<int> numbers, vector<bool> flags) {
+    // 1. 숫자들, 플래그들을 입력받는다.
+    vector<int> answer;
+    int j;
+    int i = 0;
+    // 2. 숫자들 개수만큼 반복한다.
+    while (i < numbers.size()) {
+        j = 0;
+        // 2.1. 현재 플래그가 참이고 현재 수 * 2만큼 반복한다.
+        while (j < numbers[i] * 2 && flags[i] == true) {
+            // 2.1.1. 정답에 현재 수를 추가한다.
+            answer.push_back(numbers[i]);
+            j++;
+        }
+        // 2.2. 현재 플래그가 거짓이고 현재 수만큼 반복한다.
+        while (j < numbers[i] && flags[i] == false) {
+            // 2.2.1. 정답에서 제거한다.
+            answer.pop_back();
+            j++;
+        }
+        i++;
+    }
+    // 3. 정답을 출력한다.
+    return answer;
+} // 4. 끝낸다.
