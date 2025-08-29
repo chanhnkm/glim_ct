@@ -1,0 +1,14 @@
+#include <string>
+
+using namespace std;
+
+int solution(int n, int k) { // 1. 양꼬치 개수, 음료 개수를 입력받는다.
+    int amount;
+    
+    // 2. 서비스 음료 개수를 구한다.
+    int service = n / 10;
+    // 3. 결제 금액을 구한다.
+    amount = 12000 * n + 2000 * (k - service);
+    // 4. 결제 금액을 출력한다.
+    return amount;
+} // 5. 끝낸다.
